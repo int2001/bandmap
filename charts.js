@@ -5,7 +5,8 @@ $(function() {
 
 		Highcharts.chart('container', {
 			chart: {
-				type: 'timeline'
+				type: 'timeline',
+				zoomType: 'x'
 			},
 			accessibility: {
 				screenReaderSection: {
