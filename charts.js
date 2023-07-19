@@ -4,8 +4,8 @@ $(function() {
 			var series = this,
 				dataLabelsOptions = series.options.dataLabels,
 				options,
-			pointDLOptions,
-			newOptions = {},
+				pointDLOptions,
+				newOptions = {},
 				visibilityIndex = 1,
 				j = 2,
 				distance;
@@ -21,6 +21,7 @@ $(function() {
 						point.userDLOptions = H.merge({}, pointDLOptions);
 					}
 
+					/* 
 					if (i === j || i === j + 1) {
 						distance = distance * 2.5
 
@@ -28,10 +29,16 @@ $(function() {
 							j += 4
 						}
 					}
+					*/
+					if (i % 6 == 0) { distance = distance * 1; }
+					if (i % 6 == 1) { distance = distance * -1; }
+					if (i % 6 == 2) { distance = distance * 2; }
+					if (i % 6 == 3) { distance = distance * -2; }
+					if (i % 6 == 4) { distance = distance * 3; }
+					if (i % 6 == 5) { distance = distance * -3; }
 
-					newOptions[series.chart.inverted ? 'x' : 'y'] =
-						dataLabelsOptions.alternate && visibilityIndex % 2 ?
-						-distance : distance;
+					newOptions[series.chart.inverted ? 'x' : 'y'] = distance;
+					// newOptions[series.chart.inverted ? 'x' : 'y'] = dataLabelsOptions.alternate && (visibilityIndex % 3 != 0) ?  -distance : distance;
 
 					options.dataLabels = H.merge(newOptions, point.userDLOptions);
 					visibilityIndex++;
@@ -97,7 +104,7 @@ $(function() {
 					let ret={};
 					ret.name=spotobject.spotted;
 					ret.x=spotobject.frequency;
-					ret.description=spotobject.frequency;
+					ret.description=spotobject.frequency + " / "+Math.round( (Date.now() - Date.parse(spotobject.when)) / 1000 / 60)+"min. ago";
 					ret.dataLabels={};
 					ret.dataLabels.alternate=true;
 					ret.dataLabels.distance=200;
