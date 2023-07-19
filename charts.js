@@ -40,6 +40,16 @@ $(function() {
 		return ((a< b) ? -1 : ((a> b) ? 1 : 0));
 	}
 
+	function reduce_spots(spotobject) {
+		let unique=[];
+		spotobject.forEach((single) => {
+			if (!spotobject.find((item) => ((item.spotted == single.spotted) && (item.frequency == single.frequency) && (Date.parse(item.when)>Date.parse(single.when))))) {
+				unique.push(single);
+			}
+		});
+		return unique;
+	}
+
 	function convert2high(spotobject) {
 		let ret={};
 		ret.name=spotobject.spotted;
@@ -56,12 +66,13 @@ $(function() {
 		}).done(function(dxspots) {
 			spots4chart=[];
 			dxspots.sort(SortByQrg);
+			dxspots=reduce_spots(dxspots);
 			dxspots.forEach((single) => {
 				if ( (single.frequency >= lowerQrg) && (single.frequency <= upperQrg) && (Date.parse(single.when)>(Date.now() - 1000 * 60 * maxAgeMinutes)) ) {
 					spots4chart.push(convert2high(single));
 				}
 			});
-			console.log(spots4chart);
+			// console.log(spots4chart);
 			render_chart('20m',spots4chart);
 		});
 	}
