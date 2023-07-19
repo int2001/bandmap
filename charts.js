@@ -41,10 +41,10 @@ $(function() {
 	}(Highcharts));
 
 	var dxcluster_provider = 'https://dxc.jo30.de/dxcache';
+	var bandMapChart;
 
 	function render_chart (band,spot_data) {
-
-		Highcharts.chart('container', {
+		let chartObject=Highcharts.chart('container', {
 			chart: {
 				type: 'timeline',
 				zoomType: 'x',
@@ -73,8 +73,9 @@ $(function() {
 				text: band
 			},
 			series: [ { data: spot_data } ] 
-		}, 
-				)}
+		});
+		return chartObject;
+	}
 
 				function SortByQrg(a, b){
 					var a = a.frequency;
@@ -103,7 +104,7 @@ $(function() {
 					return ret;
 				}
 
-				function set_chart(lowerQrg,upperQrg,maxAgeMinutes) {
+				function update_chart(lowerQrg,upperQrg,maxAgeMinutes) {
 					$.ajax({
 						url: dxcluster_provider + "/spots",
 						cache: false,
@@ -118,9 +119,30 @@ $(function() {
 							}
 						});
 						// console.log(spots4chart);
-						render_chart('20m',spots4chart);
+						bandMapChart.series[0].setData(spots4chart);
+						bandMapChart.redraw();
 					});
 				}
 
-				set_chart(14000,14310,30);
+
+				function set_chart(lowerQrg,upperQrg,maxAgeMinutes) {
+					$.ajax({
+						url: dxcluster_provider + "/spots",
+						cache: false,
+						dataType: "json"
+					}).done(function(dxspots) {
+						spots4chart=[];
+						dxspots.sort(SortByQrg);
+						dxspots=reduce_spots(dxspots);
+						dxspots.forEach((single) => {
+							if ( (single.frequency >= lowerQrg) && (single.frequency <= upperQrg) && (Date.parse(single.when)>(Date.now() - 1000 * 60 * maxAgeMinutes)) ) {
+								spots4chart.push(convert2high(single));
+							}
+						});
+						bandMapChart=render_chart('20m',spots4chart);
+					});
+				}
+
+	set_chart(14000,14310,30);
+	setInterval(function () { update_chart(14000,14310,30); },60000);
 });
